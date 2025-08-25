@@ -1,117 +1,45 @@
---// Celestial Hub Exploit Version
+--// Celestial Hub
+--// Key System + GUI with Toggle + Pet & Weather Spawner
+
 local HttpService = game:GetService("HttpService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
---// Key (for testing, replace with your GitHub fetch)
-local key = "AMOYTAE"
+--// Get key from GitHub
+local success, key = pcall(function()
+    return game:HttpGet("https://raw.githubusercontent.com/gooliethegee/RobloxFiles/main/key.txt")
+end)
 
---// Key GUI
-local ScreenGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
+if not success then
+    warn("Failed to load key file.")
+    return
+end
+
+-- Trim spaces/newlines from the key
+key = key:gsub("%s+", "")
+
+--// Create Key Input GUI
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
 local KeyFrame = Instance.new("Frame", ScreenGui)
 KeyFrame.Size = UDim2.new(0, 300, 0, 150)
 KeyFrame.Position = UDim2.new(0.5, -150, 0.5, -75)
-KeyFrame.BackgroundColor3 = Color3.fromRGB(25,25,25)
+KeyFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 KeyFrame.Active = true
 KeyFrame.Draggable = true
+
+local Title = Instance.new("TextLabel", KeyFrame)
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+Title.Text = "Enter Key"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.SourceSansBold
+Title.TextSize = 20
 
 local TextBox = Instance.new("TextBox", KeyFrame)
 TextBox.Size = UDim2.new(1, -20, 0, 30)
 TextBox.Position = UDim2.new(0, 10, 0, 50)
-TextBox.PlaceholderText = "Enter Key"
-
-local Submit = Instance.new("TextButton", KeyFrame)
-Submit.Size = UDim2.new(0.5, -15, 0, 30)
-Submit.Position = UDim2.new(0, 10, 0, 100)
-Submit.Text = "Submit"
-
-local Close = Instance.new("TextButton", KeyFrame)
-Close.Size = UDim2.new(0.5, -15, 0, 30)
-Close.Position = UDim2.new(0.5, 5, 0, 100)
-Close.Text = "Exit"
-
---// Hub
-local function CreateHub()
-    local HubGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
-    HubGui.Name = "CelestialHub"
-
-    local Main = Instance.new("Frame", HubGui)
-    Main.Size = UDim2.new(0, 400, 0, 300)
-    Main.Position = UDim2.new(0.5, -200, 0.5, -150)
-    Main.BackgroundColor3 = Color3.fromRGB(30,30,30)
-    Main.Active = true
-    Main.Draggable = true
-
-    -- Pet Name Input
-    local PetNameBox = Instance.new("TextBox", Main)
-    PetNameBox.Size = UDim2.new(1, -20, 0, 30)
-    PetNameBox.Position = UDim2.new(0, 10, 0, 40)
-    PetNameBox.PlaceholderText = "Pet Name"
-
-    -- Pet Age Input
-    local PetAgeBox = Instance.new("TextBox", Main)
-    PetAgeBox.Size = UDim2.new(1, -20, 0, 30)
-    PetAgeBox.Position = UDim2.new(0, 10, 0, 80)
-    PetAgeBox.PlaceholderText = "Pet Age"
-
-    local PetButton = Instance.new("TextButton", Main)
-    PetButton.Size = UDim2.new(1, -20, 0, 30)
-    PetButton.Position = UDim2.new(0, 10, 0, 120)
-    PetButton.Text = "Spawn Pet"
-    PetButton.MouseButton1Click:Connect(function()
-        local name = PetNameBox.Text
-        local age = tonumber(PetAgeBox.Text) or 0
-        if name ~= "" then
-            ReplicatedStorage:WaitForChild("GivePetRE"):FireServer(name, age)
-        end
-    end)
-
-    -- Weather Input
-    local WeatherBox = Instance.new("TextBox", Main)
-    WeatherBox.Size = UDim2.new(1, -20, 0, 30)
-    WeatherBox.Position = UDim2.new(0, 10, 0, 160)
-    WeatherBox.PlaceholderText = "Weather Name"
-
-    local WeatherButton = Instance.new("TextButton", Main)
-    WeatherButton.Size = UDim2.new(1, -20, 0, 30)
-    WeatherButton.Position = UDim2.new(0, 10, 0, 200)
-    WeatherButton.Text = "Spawn Weather"
-    WeatherButton.MouseButton1Click:Connect(function()
-        local weather = WeatherBox.Text
-        if weather ~= "" then
-            ReplicatedStorage:WaitForChild("StartWeatherEvent"):FireServer(weather)
-        end
-    end)
-
-    -- Toggle Button
-    local Toggle = Instance.new("ImageButton", HubGui)
-    Toggle.Size = UDim2.new(0,50,0,50)
-    Toggle.Position = UDim2.new(0,20,0.5,-25)
-    Toggle.Image = "rbxassetid://96627062315770"
-    Toggle.BackgroundTransparency = 1
-    Toggle.MouseButton1Click:Connect(function()
-        Main.Visible = not Main.Visible
-    end)
-end
-
---// Button Logic
-Submit.MouseButton1Click:Connect(function()
-    if TextBox.Text:gsub("%s+","") == key then
-        KeyFrame:Destroy()
-        CreateHub()
-    else
-        TextBox.Text = ""
-        TextBox.PlaceholderText = "Invalid Key!"
-    end
-end)
-
-Close.MouseButton1Click:Connect(function()
-    ScreenGui:Destroy()
-end)local TextBox = Instance.new("TextBox", KeyFrame)
-TextBox.Size = UDim2.new(1, -20, 0, 30)
-TextBox.Position = UDim2.new(0, 10, 0, 50)
 TextBox.PlaceholderText = "Enter Key Here"
+TextBox.Text = ""
 TextBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 
@@ -135,8 +63,8 @@ local function CreateHub()
     HubGui.Name = "CelestialHub"
 
     local Main = Instance.new("Frame", HubGui)
-    Main.Size = UDim2.new(0, 400, 0, 350)
-    Main.Position = UDim2.new(0.5, -200, 0.5, -175)
+    Main.Size = UDim2.new(0, 400, 0, 300)
+    Main.Position = UDim2.new(0.5, -200, 0.5, -150)
     Main.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     Main.Active = true
     Main.Draggable = true
@@ -150,59 +78,30 @@ local function CreateHub()
     Header.Font = Enum.Font.SourceSansBold
     Header.TextSize = 22
 
-    -- Pet Name Input
-    local PetNameBox = Instance.new("TextBox", Main)
-    PetNameBox.Size = UDim2.new(1, -20, 0, 30)
-    PetNameBox.Position = UDim2.new(0, 10, 0, 60)
-    PetNameBox.PlaceholderText = "Pet Name"
-    PetNameBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    PetNameBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-
-    -- Pet Age Input
-    local PetAgeBox = Instance.new("TextBox", Main)
-    PetAgeBox.Size = UDim2.new(1, -20, 0, 30)
-    PetAgeBox.Position = UDim2.new(0, 10, 0, 100)
-    PetAgeBox.PlaceholderText = "Pet Age"
-    PetAgeBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    PetAgeBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-
     -- Pet Spawner Button
     local PetButton = Instance.new("TextButton", Main)
-    PetButton.Size = UDim2.new(1, -20, 0, 30)
-    PetButton.Position = UDim2.new(0, 10, 0, 140)
-    PetButton.Text = "Spawn Pet"
+    PetButton.Size = UDim2.new(1, -20, 0, 40)
+    PetButton.Position = UDim2.new(0, 10, 0, 60)
+    PetButton.Text = "Pet Spawner"
     PetButton.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
     PetButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 
     PetButton.MouseButton1Click:Connect(function()
-        local petName = PetNameBox.Text
-        local petAge = tonumber(PetAgeBox.Text) or 0
-        if petName ~= "" then
-            game:GetService("ReplicatedStorage").GivePetRE:FireServer(petName, petAge)
-        end
+        local args = { "La Vacca Saturno Saturnita", 998 }
+        game:GetService("ReplicatedStorage").GivePetRE:FireServer(unpack(args))
     end)
-
-    -- Weather Name Input
-    local WeatherBox = Instance.new("TextBox", Main)
-    WeatherBox.Size = UDim2.new(1, -20, 0, 30)
-    WeatherBox.Position = UDim2.new(0, 10, 0, 190)
-    WeatherBox.PlaceholderText = "Weather Event Name"
-    WeatherBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    WeatherBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 
     -- Weather Spawner Button
     local WeatherButton = Instance.new("TextButton", Main)
-    WeatherButton.Size = UDim2.new(1, -20, 0, 30)
-    WeatherButton.Position = UDim2.new(0, 10, 0, 230)
-    WeatherButton.Text = "Spawn Weather"
+    WeatherButton.Size = UDim2.new(1, -20, 0, 40)
+    WeatherButton.Position = UDim2.new(0, 10, 0, 110)
+    WeatherButton.Text = "Weather Spawner"
     WeatherButton.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
     WeatherButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 
     WeatherButton.MouseButton1Click:Connect(function()
-        local weatherName = WeatherBox.Text
-        if weatherName ~= "" then
-            game:GetService("ReplicatedStorage").StartWeatherEvent:FireServer(weatherName)
-        end
+        local args = { "MeteorStrike" }
+        game:GetService("ReplicatedStorage").StartWeatherEvent:FireServer(unpack(args))
     end)
 
     -- Toggle Button
@@ -210,7 +109,7 @@ local function CreateHub()
     Toggle.Size = UDim2.new(0, 50, 0, 50)
     Toggle.Position = UDim2.new(0, 20, 0.5, -25)
     Toggle.Image = "rbxassetid://96627062315770"
-    Toggle.BackgroundTransparency = 0
+    Toggle.BackgroundTransparency = 1
 
     Toggle.MouseButton1Click:Connect(function()
         Main.Visible = not Main.Visible
