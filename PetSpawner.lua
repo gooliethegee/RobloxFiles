@@ -1,40 +1,186 @@
---[[
-   🌟 Fancy Pet Giver GUI 🌟
-   Works in modded Grow a Garden games with unprotected remotes
-   Features:
-   - Draggable main window (PC & Mobile)
-   - Toggle button (icon) to open/close
-   - Styled UI
-]]
+--// CELESTIAL HUB FINAL SCRIPT \\--
 
 -- Services
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local HttpService = game:GetService("HttpService")
+
 local player = Players.LocalPlayer
 
--- GUI Setup
-local gui = Instance.new("ScreenGui")
-gui.Name = "FancyPetGiver"
-gui.ResetOnSpawn = false
-gui.Parent = player:WaitForChild("PlayerGui")
+-- ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "Celestial Hub"
+screenGui.Parent = player:WaitForChild("PlayerGui")
+screenGui.ResetOnSpawn = false
 
--- Toggle Button (icon)
-local toggleBtn = Instance.new("ImageButton")
-toggleBtn.Size = UDim2.new(0, 50, 0, 50)
-toggleBtn.Position = UDim2.new(0, 20, 0.5, -25)
-toggleBtn.Image = "rbxassetid://3926307971" -- UI icon sprite sheet
-toggleBtn.ImageRectOffset = Vector2.new(84, 204) -- paw icon
-toggleBtn.ImageRectSize = Vector2.new(36, 36)
-toggleBtn.BackgroundTransparency = 1
-toggleBtn.Parent = gui
+-- Main Frame (hidden until key is entered)
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 400, 0, 300)
+mainFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
+mainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+mainFrame.Visible = false
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Parent = screenGui
+Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 12)
 
--- Main Frame
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 280, 0, 180)
-frame.Position = UDim2.new(0.5, -140, 0.5, -90)
-frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-frame.BorderSizePixel = 0
-frame.Visible = false
+-- Title
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 40)
+title.BackgroundTransparency = 1
+title.Text = "🌌 Celestial Hub"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 20
+title.Parent = mainFrame
+
+-- Pet Name Box
+local petBox = Instance.new("TextBox")
+petBox.Size = UDim2.new(0.8, 0, 0, 35)
+petBox.Position = UDim2.new(0.1, 0, 0.2, 0)
+petBox.PlaceholderText = "Enter Pet Name"
+petBox.Text = ""
+petBox.Parent = mainFrame
+
+-- Pet Weight Box
+local weightBox = Instance.new("TextBox")
+weightBox.Size = UDim2.new(0.8, 0, 0, 35)
+weightBox.Position = UDim2.new(0.1, 0, 0.35, 0)
+weightBox.PlaceholderText = "Enter Pet Weight"
+weightBox.Text = ""
+weightBox.Parent = mainFrame
+
+-- Pet Spawn Button
+local petButton = Instance.new("TextButton")
+petButton.Size = UDim2.new(0.8, 0, 0, 35)
+petButton.Position = UDim2.new(0.1, 0, 0.5, 0)
+petButton.Text = "Spawn Pet"
+petButton.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+petButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+petButton.Font = Enum.Font.GothamBold
+petButton.TextSize = 16
+petButton.Parent = mainFrame
+Instance.new("UICorner", petButton).CornerRadius = UDim.new(0, 8)
+
+-- Weather Name Box
+local weatherBox = Instance.new("TextBox")
+weatherBox.Size = UDim2.new(0.8, 0, 0, 35)
+weatherBox.Position = UDim2.new(0.1, 0, 0.65, 0)
+weatherBox.PlaceholderText = "Enter Weather Name"
+weatherBox.Text = ""
+weatherBox.Parent = mainFrame
+
+-- Weather Button
+local weatherButton = Instance.new("TextButton")
+weatherButton.Size = UDim2.new(0.8, 0, 0, 35)
+weatherButton.Position = UDim2.new(0.1, 0, 0.8, 0)
+weatherButton.Text = "Start Weather"
+weatherButton.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
+weatherButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+weatherButton.Font = Enum.Font.GothamBold
+weatherButton.TextSize = 16
+weatherButton.Parent = mainFrame
+Instance.new("UICorner", weatherButton).CornerRadius = UDim.new(0, 8)
+
+-- Pet Spawn Function
+petButton.MouseButton1Click:Connect(function()
+    local petName = petBox.Text
+    local petWeight = tonumber(weightBox.Text)
+    if petName ~= "" and petWeight then
+        local args = {
+            [1] = petName,
+            [2] = petWeight
+        }
+        ReplicatedStorage.GivePetRE:FireServer(unpack(args))
+    end
+end)
+
+-- Weather Function
+weatherButton.MouseButton1Click:Connect(function()
+    local weatherName = weatherBox.Text
+    if weatherName ~= "" then
+        local args = {
+            [1] = weatherName
+        }
+        ReplicatedStorage.StartWeatherEvent:FireServer(unpack(args))
+    end
+end)
+
+---------------------------------------------------------
+--// TOGGLE BUTTON \\--
+---------------------------------------------------------
+
+local toggleButton = Instance.new("ImageButton")
+toggleButton.Size = UDim2.new(0, 50, 0, 50)
+toggleButton.Position = UDim2.new(0, 20, 0.5, -25)
+toggleButton.BackgroundTransparency = 1
+toggleButton.Image = "rbxassetid://96627062315770" -- your custom icon
+toggleButton.Parent = screenGui
+toggleButton.Active = true
+toggleButton.Draggable = true
+
+toggleButton.MouseButton1Click:Connect(function()
+    mainFrame.Visible = not mainFrame.Visible
+end)
+
+---------------------------------------------------------
+--// KEY SYSTEM \\--
+---------------------------------------------------------
+
+local KEY_URL = "https://raw.githubusercontent.com/gooliethegee/RobloxFiles/main/key.txt"
+
+-- Frame
+local keyFrame = Instance.new("Frame")
+keyFrame.Size = UDim2.new(0, 250, 0, 150)
+keyFrame.Position = UDim2.new(0.5, -125, 0.5, -75)
+keyFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+keyFrame.Active = true
+keyFrame.Draggable = true
+keyFrame.Parent = screenGui
+Instance.new("UICorner", keyFrame).CornerRadius = UDim.new(0, 10)
+
+local keyBox = Instance.new("TextBox")
+keyBox.Size = UDim2.new(0.8, 0, 0, 35)
+keyBox.Position = UDim2.new(0.1, 0, 0.25, 0)
+keyBox.PlaceholderText = "Enter Key"
+keyBox.Text = ""
+keyBox.Parent = keyFrame
+
+local submitBtn = Instance.new("TextButton")
+submitBtn.Size = UDim2.new(0.8, 0, 0, 35)
+submitBtn.Position = UDim2.new(0.1, 0, 0.6, 0)
+submitBtn.Text = "Unlock"
+submitBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 80)
+submitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+submitBtn.Parent = keyFrame
+Instance.new("UICorner", submitBtn).CornerRadius = UDim.new(0, 8)
+
+-- Fetch Key
+local function getKeyFromRepo()
+    local success, result = pcall(function()
+        return game:HttpGet(KEY_URL)
+    end)
+    if success then
+        return result:match("%S+")
+    else
+        warn("Failed to fetch key:", result)
+        return nil
+    end
+end
+
+local REAL_KEY = getKeyFromRepo()
+
+-- Key Logic
+submitBtn.MouseButton1Click:Connect(function()
+    if keyBox.Text == REAL_KEY then
+        keyFrame:Destroy()
+        mainFrame.Visible = true
+    else
+        keyBox.Text = ""
+        keyBox.PlaceholderText = "❌ Invalid Key"
+        keyBox.PlaceholderColor3 = Color3.fromRGB(255, 0, 0)
+    end
+end)frame.Visible = false
 frame.Parent = gui
 
 -- Rounded corners
