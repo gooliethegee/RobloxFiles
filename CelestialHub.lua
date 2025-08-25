@@ -1,40 +1,114 @@
---// Celestial Hub
---// Key System + GUI with Toggle + Pet & Weather Spawner
-
+--// Celestial Hub Exploit Version
 local HttpService = game:GetService("HttpService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
---// Get key from GitHub
-local success, key = pcall(function()
-    return game:HttpGet("https://raw.githubusercontent.com/gooliethegee/RobloxFiles/main/key.txt")
-end)
+--// Key (for testing, replace with your GitHub fetch)
+local key = "AMOYTAE"
 
-if not success then
-    warn("Failed to load key file.")
-    return
-end
-
-key = key:gsub("%s+", "")
-
---// Key Input GUI
-local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+--// Key GUI
+local ScreenGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
 local KeyFrame = Instance.new("Frame", ScreenGui)
 KeyFrame.Size = UDim2.new(0, 300, 0, 150)
 KeyFrame.Position = UDim2.new(0.5, -150, 0.5, -75)
-KeyFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+KeyFrame.BackgroundColor3 = Color3.fromRGB(25,25,25)
 KeyFrame.Active = true
 KeyFrame.Draggable = true
 
-local Title = Instance.new("TextLabel", KeyFrame)
-Title.Size = UDim2.new(1, 0, 0, 30)
-Title.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-Title.Text = "Enter Key"
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.Font = Enum.Font.SourceSansBold
-Title.TextSize = 20
-
 local TextBox = Instance.new("TextBox", KeyFrame)
+TextBox.Size = UDim2.new(1, -20, 0, 30)
+TextBox.Position = UDim2.new(0, 10, 0, 50)
+TextBox.PlaceholderText = "Enter Key"
+
+local Submit = Instance.new("TextButton", KeyFrame)
+Submit.Size = UDim2.new(0.5, -15, 0, 30)
+Submit.Position = UDim2.new(0, 10, 0, 100)
+Submit.Text = "Submit"
+
+local Close = Instance.new("TextButton", KeyFrame)
+Close.Size = UDim2.new(0.5, -15, 0, 30)
+Close.Position = UDim2.new(0.5, 5, 0, 100)
+Close.Text = "Exit"
+
+--// Hub
+local function CreateHub()
+    local HubGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
+    HubGui.Name = "CelestialHub"
+
+    local Main = Instance.new("Frame", HubGui)
+    Main.Size = UDim2.new(0, 400, 0, 300)
+    Main.Position = UDim2.new(0.5, -200, 0.5, -150)
+    Main.BackgroundColor3 = Color3.fromRGB(30,30,30)
+    Main.Active = true
+    Main.Draggable = true
+
+    -- Pet Name Input
+    local PetNameBox = Instance.new("TextBox", Main)
+    PetNameBox.Size = UDim2.new(1, -20, 0, 30)
+    PetNameBox.Position = UDim2.new(0, 10, 0, 40)
+    PetNameBox.PlaceholderText = "Pet Name"
+
+    -- Pet Age Input
+    local PetAgeBox = Instance.new("TextBox", Main)
+    PetAgeBox.Size = UDim2.new(1, -20, 0, 30)
+    PetAgeBox.Position = UDim2.new(0, 10, 0, 80)
+    PetAgeBox.PlaceholderText = "Pet Age"
+
+    local PetButton = Instance.new("TextButton", Main)
+    PetButton.Size = UDim2.new(1, -20, 0, 30)
+    PetButton.Position = UDim2.new(0, 10, 0, 120)
+    PetButton.Text = "Spawn Pet"
+    PetButton.MouseButton1Click:Connect(function()
+        local name = PetNameBox.Text
+        local age = tonumber(PetAgeBox.Text) or 0
+        if name ~= "" then
+            ReplicatedStorage:WaitForChild("GivePetRE"):FireServer(name, age)
+        end
+    end)
+
+    -- Weather Input
+    local WeatherBox = Instance.new("TextBox", Main)
+    WeatherBox.Size = UDim2.new(1, -20, 0, 30)
+    WeatherBox.Position = UDim2.new(0, 10, 0, 160)
+    WeatherBox.PlaceholderText = "Weather Name"
+
+    local WeatherButton = Instance.new("TextButton", Main)
+    WeatherButton.Size = UDim2.new(1, -20, 0, 30)
+    WeatherButton.Position = UDim2.new(0, 10, 0, 200)
+    WeatherButton.Text = "Spawn Weather"
+    WeatherButton.MouseButton1Click:Connect(function()
+        local weather = WeatherBox.Text
+        if weather ~= "" then
+            ReplicatedStorage:WaitForChild("StartWeatherEvent"):FireServer(weather)
+        end
+    end)
+
+    -- Toggle Button
+    local Toggle = Instance.new("ImageButton", HubGui)
+    Toggle.Size = UDim2.new(0,50,0,50)
+    Toggle.Position = UDim2.new(0,20,0.5,-25)
+    Toggle.Image = "rbxassetid://96627062315770"
+    Toggle.BackgroundTransparency = 1
+    Toggle.MouseButton1Click:Connect(function()
+        Main.Visible = not Main.Visible
+    end)
+end
+
+--// Button Logic
+Submit.MouseButton1Click:Connect(function()
+    if TextBox.Text:gsub("%s+","") == key then
+        KeyFrame:Destroy()
+        CreateHub()
+    else
+        TextBox.Text = ""
+        TextBox.PlaceholderText = "Invalid Key!"
+    end
+end)
+
+Close.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)local TextBox = Instance.new("TextBox", KeyFrame)
 TextBox.Size = UDim2.new(1, -20, 0, 30)
 TextBox.Position = UDim2.new(0, 10, 0, 50)
 TextBox.PlaceholderText = "Enter Key Here"
